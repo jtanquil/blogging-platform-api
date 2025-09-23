@@ -1,17 +1,21 @@
 const express = require('express');
 const dotenv = require('dotenv');
+const connection = require('./db.js')
 
 dotenv.config({ debug: true });
 
 const app = express();
 const PORT = process.env.PORT;
 
-app.get('/', (req, res) => {
-  res.send('Hello World!');
-});
+async function getQueryResults(req, res) {
+  res.send(await connection.connectionTest(req.params.id));
+}
 
-app.get('/posts', (req, res) => {
-  res.send("GET /posts");
+
+app.get('/', getQueryResults);
+
+app.get('/posts/', (req, res) => {
+  res.send(connection.connectionTest());
 });
 
 app.get('/posts/:id', (req, res) => {
