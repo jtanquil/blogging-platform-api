@@ -17,7 +17,7 @@ async function getQueryResults(req, res) {
 
 async function postQuery(req, res) {
   await connection.createPost(req.body);
-  res.redirect('/posts');
+  res.send("post made");
 }
 
 app.get('/', getQueryResults);

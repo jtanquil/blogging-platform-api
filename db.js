@@ -84,8 +84,7 @@ async function connectionTest() {
 // insert the post/tag joins
 async function createPost(post) {
   let con = await mysql.createConnection({ host, user, password, database });
-  const [ tagsResults, tagsFields ] = await con.execute(
-    "SELECT id, tag FROM tags");
+  const [ tagsResults, tagsFields ] = await con.execute("SELECT id, tag FROM tags");
   let tagIds = [];
   let tags = post.tags.split(",");
 
@@ -120,6 +119,10 @@ async function createPost(post) {
     await con.execute(
       `INSERT INTO posts_tags (post_id, tag_id) VALUES (${postId}, ${tagId})`);
   }
+
+  con.end((err) => {
+    if (err) throw err;
+  });
 }
 
 module.exports = { connectionTest, createPost };
