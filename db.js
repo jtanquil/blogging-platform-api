@@ -125,4 +125,49 @@ async function createPost(post) {
   });
 }
 
-module.exports = { connectionTest, createPost };
+async function getPosts() {
+  let con = await mysql.createConnection({ host, user, password, database });
+  const [ postsResults, postsFields ] = await con.execute(`
+    SELECT p.id, p.title, p.content, c.category, GROUP_CONCAT(t.tag SEPARATOR ',') tags, p.created_at, p.updated_at
+    FROM posts p 
+    JOIN posts_tags pt ON p.id = pt.post_id
+    JOIN tags t ON t.id = pt.tag_id
+    JOIN categories c ON c.id = p.category_id
+    GROUP BY p.id, p.title, p.content, c.category, p.created_at, p.updated_at 
+    `);
+
+  postsResults.forEach((post) => {
+    post.tags = post.tags.split(",");
+  });
+
+  con.end((err) => {
+    if (err) throw err;
+  });
+
+  return postsResults;
+}
+
+async function getPost(id) {
+  let con = await mysql.createConnection({ host, user, password, database });
+  const [ postsResults, postsFields ] = await con.execute(`
+    SELECT p.id, p.title, p.content, c.category, GROUP_CONCAT(t.tag SEPARATOR ',') tags, p.created_at, p.updated_at
+    FROM posts p 
+    JOIN posts_tags pt ON p.id = pt.post_id
+    JOIN tags t ON t.id = pt.tag_id
+    JOIN categories c ON c.id = p.category_id
+    WHERE p.id = '${id}'
+    GROUP BY p.id, p.title, p.content, c.category, p.created_at, p.updated_at 
+    `);
+
+  postsResults.forEach((post) => {
+    post.tags = post.tags.split(",");
+  });
+
+  con.end((err) => {
+    if (err) throw err;
+  });
+
+  return postsResults;
+}
+
+module.exports = { connectionTest, createPost, getPosts, getPost };

@@ -15,20 +15,34 @@ async function getQueryResults(req, res) {
   res.send(await connection.connectionTest(req.params.id));
 }
 
+async function getPosts(req, res) {
+  res.status(200).send(await connection.getPosts());
+}
+
+async function getPost(req, res) {
+  const post = await connection.getPost(req.params.id);
+
+  if (post.length === 0) {
+    res.status(404).send(`post with id ${req.params.id} not found`);
+  } else {
+    res.status(200).send(post[0]);
+  }
+}
+
 async function postQuery(req, res) {
-  await connection.createPost(req.body);
-  res.send("post made");
+  try {
+    await connection.createPost(req.body);
+    res.status(201).send("post created");
+  } catch (err) {
+    res.status(400).send(err);
+  }
 }
 
 app.get('/', getQueryResults);
 
-app.get('/posts/', (req, res) => {
-  res.send(connection.connectionTest());
-});
+app.get('/posts/', getPosts);
 
-app.get('/posts/:id', (req, res) => {
-  res.send(`GET /posts/${req.params.id}`);
-});
+app.get('/posts/:id', getPost);
 
 app.post('/posts', postQuery);
 
